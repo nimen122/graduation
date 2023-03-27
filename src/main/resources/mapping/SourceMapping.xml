@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：命名空间，是用于绑定Dao接口的，即面向接口编程，必须写为被绑定接口的全类名-->
+<mapper namespace="com.example.graduationspringboot.mapper.SourceMapper">
+
+    <resultMap id="SourceMapper" type="com.example.graduationspringboot.entity.Source">
+
+        <id column="source_id" jdbcType="INTEGER" property="sourceId" />
+        <result column="source_data" jdbcType="VARCHAR" property="sourceData" />
+        <result column="user_account" jdbcType="VARCHAR" property="userAccount" />
+        <result column="collect_time" jdbcType="VARCHAR" property="collectTime" />
+
+    </resultMap>
+
+<!--    <select id="selectAllSouce" resultType="com.example.graduationspringboot.entity.Source">-->
+    <select id="selectAllSource" resultMap="SourceMapper">
+        select * from tl_source
+    </select>
+
+    <select id="selectSourceById" resultMap="SourceMapper">
+        select * from tl_source where source_id=#{sourceId}
+    </select>
+
+    <!--    <select id="findUserById" resultMap="LoginMapper">-->
+    <!--        select * form login where lo-->
+    <!--    </select>-->
+
+    <insert id="insertSource"  keyColumn="source_id" useGeneratedKeys="true" keyProperty="sourceId">
+        insert into tl_source(source_data,user_account,collect_time)
+        values(#{sourceData},#{userAccount},#{collectTime})
+    </insert>
+
+    <update id="updateSource" parameterType="com.example.graduationspringboot.entity.Source">
+        update tl_source set source_data = #{sourceData}
+        where source_id = #{sourceId}
+    </update>
+
+    <!--    <delete id="deleteAccount" parameterType="com.example.graduationProject.entity.Login">-->
+    <!--        delete from login where login_account = #{loginAccount}-->
+    <!--    </delete>-->
+
+</mapper>
+
+
+

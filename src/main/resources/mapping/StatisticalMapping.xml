@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：命名空间，是用于绑定Dao接口的，即面向接口编程，必须写为被绑定接口的全类名-->
+<mapper namespace="com.example.graduationspringboot.mapper.StatisticalMapper">
+
+    <resultMap id="StatisticalMapper" type="com.example.graduationspringboot.entity.Statistical">
+
+        <id column="statistical_id" jdbcType="INTEGER" property="statisticalId" />
+        <result column="statistical_date" jdbcType="VARCHAR" property="statisticalDate" />
+        <result column="statistical_import_data" jdbcType="INTEGER" property="statisticalImportData" />
+        <result column="statistical_error_data" jdbcType="INTEGER" property="statisticalErrorData" />
+
+    </resultMap>
+
+    <select id="selectTodayStatistical" resultMap="StatisticalMapper">
+        select * from tl_statistical where statistical_date=#{statisticalDate}
+    </select>
+
+    <select id="selectNum" resultType="INTEGER">
+        select count(*) from tl_statistical
+    </select>
+
+    <select id="selectMinId" resultType="INTEGER">
+        select min(statistical_id) from tl_statistical
+    </select>
+
+    <select id="selectHistoryStatistical" resultMap="StatisticalMapper">
+        select * from tl_statistical
+    </select>
+
+
+    <insert id="insertStatistical" parameterType="com.example.graduationspringboot.entity.Statistical" keyColumn="statistical_id" useGeneratedKeys="true">
+        insert into tl_statistical(statistical_date,statistical_import_data,statistical_error_data)
+        values(#{statisticalDate},#{statisticalImportData},#{statisticalErrorData})
+    </insert>
+
+    <update id="updateStatistical" parameterType="com.example.graduationspringboot.entity.Statistical">
+        update tl_statistical set statistical_import_data =#{statisticalImportData},statistical_error_data=#{statisticalErrorData}
+        where statistical_date =#{statisticalDate}
+    </update>
+
+<!--    删除id值最小的数据 （删除最旧的数据）-->
+    <delete id="deleteStatistical" parameterType="INTEGER">
+        delete from tl_statistical where statistical_id =#{minId}
+    </delete>
+
+
+
+    <!--    <update id="updateAccount" parameterType="com.example.graduationProject.entity.Login">-->
+    <!--        update login set login_password = #{loginPassword},login_role = #{loginRole},login_name=#{loginName},login_phone=#{loginPhone}-->
+    <!--        where login_account = #{loginAccount}-->
+    <!--    </update>-->
+
+    <!--    <delete id="deleteAccount" parameterType="com.example.graduationProject.entity.Login">-->
+    <!--        delete from login where login_account = #{loginAccount}-->
+    <!--    </delete>-->
+
+</mapper>
+
+
+

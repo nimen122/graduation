@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：命名空间，是用于绑定Dao接口的，即面向接口编程，必须写为被绑定接口的全类名-->
+<mapper namespace="com.example.graduationspringboot.mapper.SysUserMapper">
+
+    <resultMap id="SysUserMapper" type="com.example.graduationspringboot.entity.SysUser">
+
+        <id column="user_account" jdbcType="VARCHAR" property="userAccount" />
+        <result column="user_password" jdbcType="VARCHAR" property="userPassword" />
+        <result column="user_role" jdbcType="VARCHAR" property="userRole" />
+<!--        <result column="login_phone" jdbcType="VARCHAR" property="loginPhone" />-->
+<!--        <result column="login_name" jdbcType="VARCHAR" property="loginName" />-->
+
+
+    </resultMap>
+
+    <select id="selectUserByAccount" resultMap="SysUserMapper">
+        select * from tl_user where user_account=#{userAccount}
+    </select>
+
+<!--    <select id="findUserById" resultMap="LoginMapper">-->
+<!--        select * form login where lo-->
+<!--    </select>-->
+
+    <insert id="addUser" parameterType="com.example.graduationspringboot.entity.SysUser" keyColumn="userAccount" useGeneratedKeys="true">
+        insert into tl_user(user_account,user_password,user_role)
+        values(#{userAccount},#{userPassword},#{userRole})
+    </insert>
+
+<!--    <update id="updateAccount" parameterType="com.example.graduationProject.entity.Login">-->
+<!--        update login set login_password = #{loginPassword},login_role = #{loginRole},login_name=#{loginName},login_phone=#{loginPhone}-->
+<!--        where login_account = #{loginAccount}-->
+<!--    </update>-->
+
+<!--    <delete id="deleteAccount" parameterType="com.example.graduationProject.entity.Login">-->
+<!--        delete from login where login_account = #{loginAccount}-->
+<!--    </delete>-->
+
+</mapper>
+
+
+
