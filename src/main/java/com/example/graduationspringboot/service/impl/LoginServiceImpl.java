@@ -2,6 +2,7 @@ package com.example.graduationspringboot.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.example.graduationspringboot.entity.SysUser;
+import com.example.graduationspringboot.mapper.SysUserMapper;
 import com.example.graduationspringboot.service.LoginService;
 import com.example.graduationspringboot.service.SysUserService;
 import com.example.graduationspringboot.utils.JWTUtils;
@@ -28,6 +29,10 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private SysUserService sysUserService;
     @Autowired
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private LoginService loginService;
+    @Autowired
     private RedisTemplate<String,String> redisTemplate;
 
     private static final String salt = "hfut2019215068";
@@ -48,10 +53,8 @@ public class LoginServiceImpl implements LoginService {
             return Result.fail(ErrorCode.PARAMS_ERROR.getCode(),ErrorCode.PARAMS_ERROR.getMsg());
         }
         password = DigestUtils.md5Hex(password + salt);
-        System.out.println("password："+password);
+
         SysUser sysUser = sysUserService.findUser(account,password);
-
-
 
         if (sysUser == null){
             return Result.fail(ErrorCode.ACCOUNT_PWD_NOT_EXIST.getCode(),ErrorCode.ACCOUNT_PWD_NOT_EXIST.getMsg());
@@ -141,6 +144,62 @@ public class LoginServiceImpl implements LoginService {
         }
         SysUser sysUser = JSON.parseObject(userJson, SysUser.class);
         return sysUser;
+    }
+
+    @Override
+    public Result updateUser(String token,SysUser sysUser) {
+        /**
+         * 1.token校验失败-》token非法
+         * 2.要更新的账号不存在-》参数有误
+         * 3.普通用户无法修改其他人的账号信息
+         * 4.管理员无法修改同为管理员的账号信息
+         * 5.普通用户不能修改名字和角色信息
+         */
+        SysUser currentUser = loginService.checkToken(token);
+
+        if (currentUser == null){
+            return Result.fail(ErrorCode.TOKEN_ERROR.getCode(),ErrorCode.TOKEN_ERROR.getMsg());
+        }
+        if (sysUser.getUserAccount() == null){
+            return Result.fail(ErrorCode.PARAMS_ERROR.getCode(),ErrorCode.PARAMS_ERROR.getMsg());
+        }
+        SysUser updateUser = sysUserMapper.selectUserByAccount(sysUser.getUserAccount());
+        if (updateUser == null){
+            return Result.fail(ErrorCode.PARAMS_ERROR.getCode(),ErrorCode.PARAMS_ERROR.getMsg());
+        }
+
+        if (!currentUser.getUserAccount().equals(sysUser.getUserAccount())
+                && currentUser.getUserRole().equals("普通用户")){
+            return Result.fail(ErrorCode.NO_PERMISSION.getCode(),ErrorCode.NO_PERMISSION.getMsg());
+        }
+        if (!currentUser.getUserAccount().equals(sysUser.getUserAccount())
+                && currentUser.getUserRole().equals(updateUser.getUserRole())){
+            return Result.fail(ErrorCode.NO_PERMISSION.getCode(),ErrorCode.NO_PERMISSION.getMsg());
+        }
+        if (sysUser.getUserRole() != null && currentUser.getUserRole().equals("普通用户")){
+            return Result.fail(ErrorCode.NO_PERMISSION.getCode(),ErrorCode.NO_PERMISSION.getMsg());
+        }
+        if (sysUser.getUserName()!=null && currentUser.getUserRole().equals("普通用户")){
+            return Result.fail(ErrorCode.NO_PERMISSION.getCode(),ErrorCode.NO_PERMISSION.getMsg());
+        }
+
+        SysUser sysUser1 = new SysUser();
+        sysUser1.setUserAccount(sysUser.getUserAccount());
+        if (sysUser.getUserPassword()!=null){
+            sysUser1.setUserPassword(DigestUtils.md5Hex(sysUser.getUserPassword() + salt));
+        }
+        if (sysUser.getUserPhone()!=null){
+            sysUser1.setUserPhone(sysUser.getUserPhone());
+        }
+        if (sysUser.getUserName()!=null){
+            sysUser1.setUserName(sysUser.getUserName());
+        }
+        if (sysUser.getUserRole()!=null){
+            sysUser1.setUserRole(sysUser.getUserRole());
+        }
+        System.out.println(sysUser1);
+        sysUserService.updateUser(sysUser1);
+        return Result.success(null);
     }
 
 }

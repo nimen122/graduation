@@ -5,6 +5,7 @@ import com.example.graduationspringboot.entity.Source;
 import com.example.graduationspringboot.mapper.ChartDataMapper;
 import com.example.graduationspringboot.mapper.SourceMapper;
 import com.example.graduationspringboot.service.SourceService;
+import com.example.graduationspringboot.vo.ChartDataVo;
 import com.example.graduationspringboot.vo.ErrorCode;
 import com.example.graduationspringboot.vo.Result;
 import com.example.graduationspringboot.vo.params.AddSourceParam;
@@ -73,12 +74,21 @@ public class SourceServiceImpl implements SourceService {
     public Result getChartData(String sourceData) {
 
         String[] split = sourceData.split(" ");
-        List<ChartData> chartDataList = new ArrayList<>();
+        List<ChartDataVo> chartDataVoList = new ArrayList<>();
+
         for (int i = 0;i<split.length;i++){
             ChartData chartData = chartDataMapper.selectDataById(Integer.parseInt(split[i]));
-            chartDataList.add(chartData);
+            ChartDataVo chartDataVo = new ChartDataVo();
+            String[] chartDataSplit = chartData.getDataValue().split(" ");
+            List<String> sList = new ArrayList<>();
+            for (int j = 0;j<chartDataSplit.length;j++){
+                sList.add(chartDataSplit[j]);
+            }
+            chartDataVo.setDataName(chartData.getDataName());
+            chartDataVo.setDataValue(sList);
+            chartDataVoList.add(chartDataVo);
         }
-        return Result.success(chartDataList);
+        return Result.success(chartDataVoList);
     }
 
     @Override

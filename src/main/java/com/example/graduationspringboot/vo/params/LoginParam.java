@@ -9,6 +9,12 @@ public class LoginParam {
 
     private String loginPassword;
 
+//    private String loginName;
+//
+//    private String loginPhone;
+//
+//    private String loginRole;
+
 //    private String loginRole;
 
 }

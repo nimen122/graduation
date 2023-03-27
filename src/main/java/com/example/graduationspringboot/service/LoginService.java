@@ -15,4 +15,6 @@ public interface LoginService {
     Result register(LoginParam loginParam);
 
     SysUser checkToken(String token);
+
+    Result updateUser(String token,SysUser sysUser);
 }

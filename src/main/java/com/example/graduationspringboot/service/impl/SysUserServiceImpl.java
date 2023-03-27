@@ -31,4 +31,9 @@ public class SysUserServiceImpl implements SysUserService {
     public void addUser(SysUser sysUser) {
         sysUserMapper.addUser(sysUser);
     }
+
+    @Override
+    public void updateUser(SysUser sysUser) {
+        sysUserMapper.updateUser(sysUser);
+    }
 }

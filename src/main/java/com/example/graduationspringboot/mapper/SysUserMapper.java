@@ -9,4 +9,6 @@ public interface SysUserMapper {
     SysUser selectUserByAccount(String account);
 
     void addUser(SysUser sysUser);
+
+    void updateUser(SysUser sysUser);
 }

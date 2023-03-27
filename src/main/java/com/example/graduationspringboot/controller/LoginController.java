@@ -69,6 +69,18 @@ public class LoginController {
     }
 
 
+    /**
+     * 更新账号信息
+     * @param sysUser
+     * @return
+     */
+    @RequestMapping(value = "/updateUser", method = RequestMethod.POST)
+    @ApiOperation(value = "更新账号信息",notes = "更新账号信息")
+    public Result updateUser(@RequestHeader("Authorization") String token,@RequestBody SysUser sysUser) {
+        return loginService.updateUser(token,sysUser);
+    }
+
+
 //    public Result testToken(@RequestHeader("Authorization") String token, @RequestBody LoginParam loginParam) {
 
 

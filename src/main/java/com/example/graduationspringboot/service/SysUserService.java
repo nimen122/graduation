@@ -12,4 +12,6 @@ public interface SysUserService {
     SysUser findUser(String account, String password);
 
     void addUser(SysUser sysUser);
+
+    void updateUser(SysUser sysUser);
 }
