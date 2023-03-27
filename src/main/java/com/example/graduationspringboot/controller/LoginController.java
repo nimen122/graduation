@@ -51,7 +51,7 @@ public class LoginController {
      * @return
      */
     @RequestMapping(value = "/loginOut", method = RequestMethod.GET)
-    @ApiOperation(value = "获取用户信息",notes = "获取用户信息")
+    @ApiOperation(value = "退出登录",notes = "退出登录")
     public Result loginOut(@RequestHeader("Authorization") String token) {
 
         return loginService.loginOut(token);
