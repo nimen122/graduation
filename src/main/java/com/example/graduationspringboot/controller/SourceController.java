@@ -1,12 +1,15 @@
 package com.example.graduationspringboot.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.graduationspringboot.entity.ChartData;
 import com.example.graduationspringboot.entity.SysUser;
 import com.example.graduationspringboot.service.LoginService;
 import com.example.graduationspringboot.service.SourceService;
+import com.example.graduationspringboot.vo.ChartDataVo;
 import com.example.graduationspringboot.vo.Result;
 import com.example.graduationspringboot.vo.params.AddSourceParam;
+import com.example.graduationspringboot.vo.params.ChartDataParam;
 import com.example.graduationspringboot.vo.params.LoginParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,15 +57,18 @@ public class SourceController {
 
     /**
      * 新增数据源（上传一组数据）
-     * @param sourceParam
+     * @param dataJson
      * @return
      */
     @RequestMapping(value = "/addSource", method = RequestMethod.POST)
     @ApiOperation(value = "新增数据源",notes = "新增数据源")
-    public Result addSource(@RequestHeader("Authorization") String token, @RequestBody AddSourceParam sourceParam) {
-
-        SysUser sysUser = loginService.checkToken(token);
-        return sourceService.addSource(sysUser.getUserAccount(),sourceParam);
+    public Result addSource(@RequestHeader("Authorization") String token, @RequestBody String dataJson) {
+        System.out.println(dataJson);
+        JSONObject jsonObject = JSONObject.parseObject(dataJson);
+        List<ChartDataParam> sourceParam = JSONObject.parseArray(jsonObject.getJSONArray("dataJson").toJSONString(), ChartDataParam.class);
+//        SysUser sysUser = loginService.checkToken(token);
+        System.out.println(sourceParam);
+        return sourceService.addSource(token,sourceParam);
 
     }
 
