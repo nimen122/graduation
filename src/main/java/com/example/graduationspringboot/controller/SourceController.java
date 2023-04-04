@@ -7,6 +7,7 @@ import com.example.graduationspringboot.entity.SysUser;
 import com.example.graduationspringboot.service.LoginService;
 import com.example.graduationspringboot.service.SourceService;
 import com.example.graduationspringboot.vo.ChartDataVo;
+import com.example.graduationspringboot.vo.ErrorCode;
 import com.example.graduationspringboot.vo.Result;
 import com.example.graduationspringboot.vo.params.AddSourceParam;
 import com.example.graduationspringboot.vo.params.ChartDataParam;
@@ -15,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,13 +65,14 @@ public class SourceController {
     @RequestMapping(value = "/addSource", method = RequestMethod.POST)
     @ApiOperation(value = "新增数据源",notes = "新增数据源")
     public Result addSource(@RequestHeader("Authorization") String token, @RequestBody String dataJson) {
-        System.out.println(dataJson);
-        JSONObject jsonObject = JSONObject.parseObject(dataJson);
-        List<ChartDataParam> sourceParam = JSONObject.parseArray(jsonObject.getJSONArray("dataJson").toJSONString(), ChartDataParam.class);
-//        SysUser sysUser = loginService.checkToken(token);
-        System.out.println(sourceParam);
-        return sourceService.addSource(token,sourceParam);
 
+        try{
+            JSONObject jsonObject = JSONObject.parseObject(dataJson);
+            List<ChartDataParam> sourceParam = JSONObject.parseArray(jsonObject.getJSONArray("dataJson").toJSONString(), ChartDataParam.class);
+            return sourceService.addSource(token,sourceParam);
+        }catch(Exception e){
+            return Result.fail(ErrorCode.PARAMS_ERROR.getCode(),ErrorCode.PARAMS_ERROR.getMsg());
+        }
     }
 
     /**

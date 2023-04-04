@@ -16,6 +16,7 @@ import com.example.graduationspringboot.vo.SourceVo;
 import com.example.graduationspringboot.vo.params.ChartDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional
 public class SourceServiceImpl implements SourceService {
 
     @Autowired
