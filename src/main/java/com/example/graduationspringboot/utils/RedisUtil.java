@@ -24,8 +24,9 @@ public class RedisUtil {
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         String s = date.format(day);
         if (!redisTemplate.hasKey(s)){
-            redisTemplate.opsForList().rightPush(s,0);  //先保存今日上报异常
-            redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
+            redisTemplate.opsForList().rightPushAll(s,0,0);
+//            redisTemplate.opsForList().rightPush(s,0);  //先保存今日上报异常
+//            redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
         }
         List<Integer> list = redisTemplate.opsForList().range(s,0,1);
         int i = list.get(0) +num;
@@ -41,8 +42,9 @@ public class RedisUtil {
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         String s = date.format(day);
         if (!redisTemplate.hasKey(s)){
-            redisTemplate.opsForList().rightPush(s,0);  //先保存今日上报异常
-            redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
+            redisTemplate.opsForList().rightPushAll(s,0,0);
+//            redisTemplate.opsForList().rightPush(s,0);  //先保存今日上报异常
+//            redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
         }
         List<Integer> list = redisTemplate.opsForList().range(s,0,1);
         int i = list.get(1) +num;
@@ -60,8 +62,9 @@ public class RedisUtil {
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         String s = date.format(day);
         if (!redisTemplate.hasKey(s)){
-            redisTemplate.opsForList().rightPush(s,0);  //先保存今日上报异常
-            redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
+            redisTemplate.opsForList().rightPushAll(s,0,0);
+//            redisTemplate.opsForList().rightPush(s,0);  //先保存今日上报异常
+//            redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
         }
         Statistical statistical = new Statistical();
         statistical.setStatisticalDate(s);

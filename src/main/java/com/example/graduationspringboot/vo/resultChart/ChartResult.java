@@ -19,4 +19,6 @@ public class ChartResult {
     private List<Double> chartUCL;
 
     private List<ResultOfCriterion> chartCriterion;
+
+    private Double sigmaZ;
 }

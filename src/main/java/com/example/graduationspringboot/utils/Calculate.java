@@ -1,6 +1,8 @@
 package com.example.graduationspringboot.utils;
 
 import com.example.graduationspringboot.vo.calChartParams.LimitsOfChart;
+import com.example.graduationspringboot.vo.resultChart.ChartResult;
+import com.example.graduationspringboot.vo.resultChart.CommonResult;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -89,6 +91,25 @@ public class Calculate {
             sum += data.get(i);
         }
         aveData = (BigDecimal.valueOf(sum/data.size()).setScale(4,BigDecimal.ROUND_HALF_UP)).doubleValue();
+        return aveData;
+    }
+
+    /**
+     * 计算Xbar中心线（CL）
+     * @param splitData
+     * @return
+     */
+    public static Double CLOfDelXbar(List<List<BigDecimal>> splitData) {
+        double aveData;
+        double sum = 0.0;
+        int num = 0;
+        for (int i = 0; i < splitData.size(); i++) {
+            num += splitData.get(i).size();
+            for (int j = 0;j<splitData.get(i).size();j++){
+                sum += splitData.get(i).get(j).doubleValue();
+            }
+        }
+        aveData = (BigDecimal.valueOf(sum/num).setScale(4,BigDecimal.ROUND_HALF_UP)).doubleValue();
         return aveData;
     }
 
@@ -448,6 +469,312 @@ public class Calculate {
         result.setCL(clList);
         result.setLCL(lclList);
         result.setUCL(uclList);
+        return result;
+    }
+
+    /**
+     * 计算p控制图的数据、中心线以及控制上下限
+     * @param groupData
+     * @param groupSize
+     * @param historyRatio
+     * @param k
+     * @return
+     */
+    public static ChartResult resultDataOfP(List<Integer> groupData, List<Integer> groupSize, Double historyRatio, int k){
+
+        ChartResult result = new ChartResult();
+        List<Double> P_Data = new ArrayList<>();
+        List<Double> P_CL = new ArrayList<>();
+        List<Double> P_LCL = new ArrayList<>();
+        List<Double> P_UCL = new ArrayList<>();
+        int dataSum = 0;
+        int groupSizeSum = 0;
+        for (int i = 0;i<groupData.size();i++){
+            dataSum += groupData.get(i);
+            groupSizeSum += groupSize.get(i);
+            P_Data.add(BigDecimal.valueOf(groupData.get(i)/(groupSize.get(i)+0.0)).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        double cl_p = 0;
+        if (historyRatio != -1){
+            cl_p = historyRatio;
+        }else {
+            cl_p = BigDecimal.valueOf(dataSum/(groupSizeSum+0.0)).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
+        double value = k*Math.sqrt(cl_p*(1-cl_p));
+        for (int i = 0;i<groupData.size();i++){
+
+            P_CL.add(cl_p);
+            BigDecimal lcl = BigDecimal.valueOf(cl_p-k*Math.sqrt(cl_p*(1-cl_p)/(groupSize.get(i)+0.0)));
+            if(lcl.compareTo(BigDecimal.ZERO) == -1){
+                lcl= new BigDecimal("0");
+            }
+            P_LCL.add(lcl.setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+
+            BigDecimal ucl = BigDecimal.valueOf(cl_p+k*Math.sqrt(cl_p*(1-cl_p)/(groupSize.get(i)+0.0)));
+            if(ucl.compareTo(BigDecimal.ONE) == 1){
+                ucl= new BigDecimal("1");
+            }
+            P_UCL.add(ucl.setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+
+        result.setChartData(P_Data);
+        result.setChartCL(P_CL);
+        result.setChartLCL(P_LCL);
+        result.setChartUCL(P_UCL);
+        return result;
+    }
+
+    /**
+     * 计算Laney P'控制图的数据、中心线以及控制上下限
+     * @param groupData
+     * @param groupSize
+     * @param historyRatio
+     * @param k
+     * @return
+     */
+    public static ChartResult resultDataOfLaneyP(List<Integer> groupData, List<Integer> groupSize, Double historyRatio, int k){
+
+        ChartResult result = new ChartResult();
+        List<Double> LaneyP_Data = new ArrayList<>();
+        List<Double> LaneyP_LCL = new ArrayList<>();
+        List<Double> LaneyP_UCL = new ArrayList<>();
+        List<Double> LaneyP_CL = new ArrayList<>();
+        List<Double> zList = new ArrayList<>();
+        int dataSum = 0;
+        int groupSizeSum = 0;
+        for (int i = 0;i<groupData.size();i++){
+            dataSum += groupData.get(i);
+            groupSizeSum += groupSize.get(i);
+            LaneyP_Data.add(BigDecimal.valueOf(groupData.get(i)/(groupSize.get(i)+0.0)).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        double cl_LaneyP =0;
+        if (historyRatio != -1){
+            cl_LaneyP = historyRatio;
+        }else {
+            cl_LaneyP = BigDecimal.valueOf(dataSum/(groupSizeSum+0.0)).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
+        for (int i = 0;i<groupData.size();i++){
+            double flush = Math.sqrt(cl_LaneyP*(1-cl_LaneyP)/(groupSize.get(i)+0.0));
+            zList.add((LaneyP_Data.get(i)-cl_LaneyP)/flush);
+        }
+
+        //使用平均移动极差方法计算sigma （计算得出的sigma即为要求的sigmaZ）
+        List<List<BigDecimal>> z_data = Calculate.splitMovingRangeGroup(zList,2);
+        List<Double> rangeList = Calculate.GroupRange(z_data);
+        double MR = Calculate.movingRangeAverageAsSigma(rangeList,2);
+        double sigmaZ = BigDecimal.valueOf(MR).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue(); //这里并没有除1.128，因为移动极差平均值估计的sigma=MRbar/d2(w),这里d2(2)=1.128
+        for (int i = 0;i<groupData.size();i++){
+
+            LaneyP_CL.add(cl_LaneyP);
+            double flush = Math.sqrt(cl_LaneyP*(1-cl_LaneyP)/(groupSize.get(i)+0.0));
+            BigDecimal lcl = BigDecimal.valueOf(cl_LaneyP-k*flush*sigmaZ);
+            if(lcl.compareTo(BigDecimal.ZERO) == -1){
+                lcl= new BigDecimal("0");
+            }
+            LaneyP_LCL.add(lcl.setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+            BigDecimal ucl = BigDecimal.valueOf(cl_LaneyP+k*flush*sigmaZ);
+            if(ucl.compareTo(BigDecimal.ONE) == 1){
+                ucl= new BigDecimal("1");
+            }
+            LaneyP_UCL.add(ucl.setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        result.setSigmaZ(sigmaZ);
+        result.setChartData(LaneyP_Data);
+        result.setChartCL(LaneyP_CL);
+        result.setChartLCL(LaneyP_LCL);
+        result.setChartUCL(LaneyP_UCL);
+        return result;
+    }
+
+    public static ChartResult resultDataOfNP(List<Integer> groupData, List<Integer> groupSize, Double historyRatio, int k){ //需检验data的size和groupSize的size是否一致
+
+        ChartResult result = new ChartResult();
+        List<Double> NP_CL = new ArrayList<>();
+        List<Double> NP_LCL = new ArrayList<>();
+        List<Double> NP_UCL = new ArrayList<>();
+        List<Double> NP_Data = new ArrayList<>();
+        int dataSum = 0;
+        int groupSizeSum = 0;
+        for (int i = 0;i<groupData.size();i++){
+            dataSum += groupData.get(i);
+            groupSizeSum += groupSize.get(i);
+        }
+        double p = 0;
+        if (historyRatio != -1){
+            p = historyRatio;
+        }else {
+            p = BigDecimal.valueOf(dataSum/(groupSizeSum+0.0)).doubleValue();
+        }
+        for (int i = 0;i<groupData.size();i++){
+            NP_Data.add(Double.valueOf(groupData.get(i)));
+            double flush = k*Math.sqrt(groupSize.get(i)*p*(1-p));
+            NP_CL.add(BigDecimal.valueOf(groupSize.get(i)*p).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+            BigDecimal lcl = BigDecimal.valueOf(groupSize.get(i)*p-flush);
+            if(lcl.compareTo(BigDecimal.ZERO) == -1){
+                lcl= new BigDecimal("0");
+            }
+            NP_LCL.add(lcl.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+
+            BigDecimal ucl = BigDecimal.valueOf(groupSize.get(i)*p+flush);
+            if(ucl.compareTo(BigDecimal.valueOf(groupSize.get(i))) == 1){
+                ucl= BigDecimal.valueOf(groupSize.get(i));
+            }
+            NP_UCL.add(ucl.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        result.setChartData(NP_Data);
+        result.setChartCL(NP_CL);
+        result.setChartLCL(NP_LCL);
+        result.setChartUCL(NP_UCL);
+        return result;
+    }
+
+    /**
+     * 计算U控制图的数据、中心线以及控制上下限
+     * @param groupData
+     * @param groupSize
+     * @param historyParam
+     * @param k
+     * @return
+     */
+    public static ChartResult resultDataOfU(List<Integer> groupData, List<Integer> groupSize, Double historyParam, int k){
+        ChartResult result = new ChartResult();
+        List<Double> U_Data = new ArrayList<>();
+        List<Double> U_CL = new ArrayList<>();
+        List<Double> U_LCL = new ArrayList<>();
+        List<Double> U_UCL = new ArrayList<>();
+        int dataSum = 0;
+        int groupSizeSum = 0;
+        for (int i = 0;i<groupData.size();i++){
+            dataSum += groupData.get(i);
+            groupSizeSum += groupSize.get(i);
+            U_Data.add(BigDecimal.valueOf(groupData.get(i)/(groupSize.get(i)+0.0)).setScale(4,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        double cl_u = 0;
+        if (historyParam != -1){
+            cl_u = historyParam;
+        }else{
+            cl_u = BigDecimal.valueOf(dataSum/(groupSizeSum+0.0)).setScale(4,BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
+        for (int i = 0;i<groupData.size();i++){
+            U_CL.add(cl_u);
+            double flush = Math.sqrt(cl_u/(groupSize.get(i)+0.0));
+            BigDecimal lcl = BigDecimal.valueOf(cl_u-k*flush);
+            if(lcl.compareTo(BigDecimal.ZERO) == -1){
+                lcl= new BigDecimal("0");
+            }
+            U_LCL.add(lcl.setScale(4,BigDecimal.ROUND_HALF_UP).doubleValue());
+
+            BigDecimal ucl = BigDecimal.valueOf(cl_u+k*flush);
+            U_UCL.add(ucl.setScale(4,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        result.setChartData(U_Data);
+        result.setChartCL(U_CL);
+        result.setChartLCL(U_LCL);
+        result.setChartUCL(U_UCL);
+        return result;
+    }
+
+    /**
+     * 计算Laney U'控制图的数据、中心线以及控制上下限
+     * @param groupData
+     * @param groupSize
+     * @param historyParam
+     * @param k
+     * @return
+     */
+    public static ChartResult resultDataOfLaneyU(List<Integer> groupData, List<Integer> groupSize, Double historyParam, int k){
+
+        ChartResult result = new ChartResult();
+        List<Double> LaneyU_Data = new ArrayList<>();
+        List<Double> LaneyU_CL = new ArrayList<>();
+        List<Double> LaneyU_LCL = new ArrayList<>();
+        List<Double> LaneyU_UCL = new ArrayList<>();
+        List<Double> zList = new ArrayList<>();
+        int dataSum = 0;
+        int groupSizeSum = 0;
+        for (int i = 0;i<groupData.size();i++){
+            dataSum += groupData.get(i);
+            groupSizeSum += groupSize.get(i);
+            LaneyU_Data.add(BigDecimal.valueOf(groupData.get(i)/(groupSize.get(i)+0.0)).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        double cl_LaneyU = 0;
+        if (historyParam != -1){
+            cl_LaneyU = historyParam;
+        }else {
+            cl_LaneyU = BigDecimal.valueOf(dataSum/(groupSizeSum+0.0)).setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
+        for (int i = 0;i<groupData.size();i++){
+            double flush = Math.sqrt(cl_LaneyU/(groupSize.get(i)+0.0));
+            zList.add((LaneyU_Data.get(i)-cl_LaneyU)/flush);
+        }
+        //使用平均移动极差方法计算sigma （计算得出的sigma即为要求的sigmaZ）
+        List<List<BigDecimal>> z_data = Calculate.splitMovingRangeGroup(zList,2);
+        List<Double> rangeList = Calculate.GroupRange(z_data);
+        double MR = Calculate.movingRangeAverageAsSigma(rangeList,2);
+        double sigmaZ = BigDecimal.valueOf(MR).setScale(6,BigDecimal.ROUND_HALF_UP).doubleValue(); //这里并没有除1.128，因为移动极差平均值估计的sigma=MRbar/d2(w),这里d2(2)=1.128
+        for (int i = 0;i<groupData.size();i++){
+            LaneyU_CL.add(cl_LaneyU);
+            double flush =k*sigmaZ*Math.sqrt(cl_LaneyU/(groupSize.get(i)+0.0));
+            BigDecimal lcl = BigDecimal.valueOf(cl_LaneyU-flush);
+            if(lcl.compareTo(BigDecimal.ZERO) == -1){
+                lcl= new BigDecimal("0");
+            }
+            LaneyU_LCL.add(lcl.setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+            BigDecimal ucl = BigDecimal.valueOf(cl_LaneyU+flush);
+            if(ucl.compareTo(BigDecimal.ONE) == 1){
+                ucl= new BigDecimal("1");
+            }
+            LaneyU_UCL.add(ucl.setScale(5,BigDecimal.ROUND_HALF_UP).doubleValue());
+        }
+        result.setSigmaZ(sigmaZ);
+        result.setChartData(LaneyU_Data);
+        result.setChartCL(LaneyU_CL);
+        result.setChartLCL(LaneyU_LCL);
+        result.setChartUCL(LaneyU_UCL);
+        return result;
+    }
+
+    /**
+     * 计算C控制图的数据、中心线以及控制上下限
+     * @param groupData
+     * @param historyParam
+     * @param k
+     * @return
+     */
+    public static ChartResult resultDataOfC(List<Integer> groupData, Double historyParam, int k){
+
+        ChartResult result = new ChartResult();
+        int dataSum = 0;
+        for (int i = 0;i<groupData.size();i++){
+            dataSum += groupData.get(i);
+        }
+        double cl_c = 0;
+        if (historyParam != -1){
+            cl_c = historyParam;
+        }else {
+            cl_c = BigDecimal.valueOf(dataSum/(groupData.size()+0.0)).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
+        double flush = k*Math.sqrt(cl_c);
+        double lcl_c = BigDecimal.valueOf(cl_c-flush).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        if (lcl_c < 0){
+            lcl_c = 0;
+        }
+        double ucl_c = BigDecimal.valueOf(cl_c+flush).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+        List<Double> C_Data = new ArrayList<>();
+        List<Double> C_CL = new ArrayList<>();
+        List<Double> C_LCL = new ArrayList<>();
+        List<Double> C_UCL = new ArrayList<>();
+        for (int i=0;i<groupData.size();i++){
+            C_Data.add(Double.valueOf(groupData.get(i)));
+            C_CL.add(cl_c);
+            C_LCL.add(lcl_c);
+            C_UCL.add(ucl_c);
+        }
+
+        result.setChartData(C_Data);
+        result.setChartCL(C_CL);
+        result.setChartLCL(C_LCL);
+        result.setChartUCL(C_UCL);
         return result;
     }
 

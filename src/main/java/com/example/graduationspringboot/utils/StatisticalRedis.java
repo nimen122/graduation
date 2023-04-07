@@ -43,7 +43,7 @@ public class StatisticalRedis implements SchedulingConfigurer {
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        taskRegistrar.addTriggerTask(() -> statisticalRedis(),
+        taskRegistrar.addTriggerTask(this::statisticalRedis,
                 triggerContext -> {
                     String cron = cronMapper.getCron(1);
                     if (cron.isEmpty()) {

@@ -18,10 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @SpringBootTest
@@ -113,7 +110,7 @@ public class BugTest {
 //        redisTemplate.opsForList().rightPush(s,list.get(0));
 //        redisTemplate.opsForList().rightPush(s,list.get(1));
 //        System.out.println(redisTemplate.opsForList().range(s,0,1));
-
+//        redisTemplate.opsForList().rightPush(s,0);  //后保存今日录入数据
         redisUtil.addImportRedis(1);
         System.out.println(redisTemplate.opsForList().range(s,0,1));
     }
@@ -232,6 +229,35 @@ public class BugTest {
         System.out.println(CL_I);
         System.out.println(sigma);
         System.out.println(Criterion.Criterion_6(data,CL_I,sigma,4));
+    }
+    @Test
+    public void testDelGroupChartParam(){
+
+
+        String datas = "600.4,600.8,599.6,602,598.6,597.2,598.2,599.4,598,599,599.8,600.2,602.8,603.6,600.2,598.4,603.4,602.2,599.2,604.2";
+        List<Double> data = new ArrayList<>();
+        String[] split = datas.split(",");
+        for (int i = 0;i<split.length;i++){
+            data.add(Double.valueOf(split[i]));
+        }
+        List<Integer> groupSize = Arrays.asList(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10);
+        //将数据根据子组ID分为多个子组
+        List<List<BigDecimal>> splitGroupData  = Calculate.splitGroup(data, groupSize);
+        //去除要删的组
+        System.out.println(splitGroupData);
+        List<Integer> delPoint = new ArrayList<>();
+        delPoint.add(0);
+        delPoint.add(1);
+        Collections.sort(delPoint);
+
+        for (int i = delPoint.size()-1;i>=0;i--){
+            if (i <= splitGroupData.size()){
+                System.out.println(delPoint.get(i));
+                splitGroupData.remove((int)delPoint.get(i));
+            }
+        }
+
+        System.out.println(splitGroupData);
     }
 
 

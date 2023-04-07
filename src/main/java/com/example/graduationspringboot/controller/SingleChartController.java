@@ -2,6 +2,7 @@ package com.example.graduationspringboot.controller;
 
 import com.example.graduationspringboot.service.SingleChartService;
 import com.example.graduationspringboot.vo.Result;
+import com.example.graduationspringboot.vo.params.DelSingleChartParam;
 import com.example.graduationspringboot.vo.params.SingleChartParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,4 +42,26 @@ public class SingleChartController {
         log.info("开始计算MR控制图数据...");
         return singleChartService.MR(singleChartParam);
     }
+
+    @RequestMapping(value = "/delI", method = RequestMethod.POST)
+    @ApiOperation(value = "重新计算I控制图数据",notes = "重新计算I控制图数据")
+    public Result delI(@RequestBody DelSingleChartParam delSingleChartParam) {
+        log.info("开始重新计算I控制图数据...");
+        return singleChartService.delI(delSingleChartParam);
+    }
+
+    @RequestMapping(value = "/delMR", method = RequestMethod.POST)
+    @ApiOperation(value = "重新计算MR控制图数据",notes = "重新计算MR控制图数据")
+    public Result delMR(@RequestBody DelSingleChartParam delSingleChartParam) {
+        log.info("开始重新计算MR控制图数据...");
+        return singleChartService.delMR(delSingleChartParam);
+    }
+
+    @RequestMapping(value = "/delIMR", method = RequestMethod.POST)
+    @ApiOperation(value = "重新计算IMR控制图数据",notes = "重新计算IMR控制图数据")
+    public Result delIMR(@RequestBody DelSingleChartParam delSingleChartParam) {
+        log.info("开始重新计算IMR控制图数据...");
+        return singleChartService.delIMR(delSingleChartParam);
+    }
+
 }

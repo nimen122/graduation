@@ -10,6 +10,8 @@ public class CommonResult {
 
     private List<Double> data;
 
+    private Double sigmaZ;
+
     private List<Double> CL;
 
     private List<Double> LCL;
