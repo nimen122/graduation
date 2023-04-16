@@ -25,11 +25,11 @@ public class ChartDataServiceImpl implements ChartDataService {
         return Result.success(chartData);
     }
 
-    @Override
-    public Result getDataByAccount(String account) {
-        List<ChartData> dataList = chartDataMapper.selectDataByAccount(account);
-        return Result.success(dataList);
-    }
+//    @Override
+//    public Result getDataByAccount(String account) {
+//        List<ChartData> dataList = chartDataMapper.selectDataByAccount(account);
+//        return Result.success(dataList);
+//    }
 
     @Override
     public Result addChartData(ChartData chartData) {

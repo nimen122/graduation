@@ -13,4 +13,10 @@ public class Source {
 
     private String collectTime;
 
+    private String dataState;
+
+    private String stateMsg;
+
+    private String stateImage;
+
 }

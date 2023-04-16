@@ -21,15 +21,15 @@
         values (#{dataName},#{dataValue},#{belongSource})
     </insert>
 
-<!--    <update id="updateChartData" parameterType="com.example.graduationspringboot.entity.ChartData">-->
-<!--        update tl_chart_data set data_name = #{dataName},data_value = #{dataValue},-->
-<!--                                 collect_time = #{collectTime}-->
-<!--        where data_id = #{dataId}-->
-<!--    </update>-->
+    <update id="updateChartData" parameterType="com.example.graduationspringboot.entity.ChartData">
+        update tl_chart_data set data_name = #{dataName},data_value = #{dataValue},
+                                 collect_time = #{collectTime}
+        where data_id = #{dataId}
+    </update>
 
-<!--    <delete id="deleteChartData" parameterType="com.example.graduationspringboot.entity.ChartData">-->
-<!--        delete from tl_chart_data where data_id = #{dataId}-->
-<!--    </delete>-->
+    <delete id="deleteChartData" parameterType="com.example.graduationspringboot.entity.ChartData">
+        delete from tl_chart_data where data_id = #{dataId}
+    </delete>
 
 </mapper>
 

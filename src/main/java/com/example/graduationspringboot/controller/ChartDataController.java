@@ -32,17 +32,17 @@ public class ChartDataController {
         return chartDataService.getDataById(dataId);
     }
 
-    /**
-     * 通过账号查询数据（查询自己的数据）
-     * @param account
-     * @return
-     */
-    @RequestMapping(value = "/getDataByAccount", method = RequestMethod.GET)
-    @ApiOperation(value = "通过账号查询数据",notes = "通过账号查询数据")
-    public Result getDataByAccount(@RequestParam(value = "account") String account) {
-        log.info("开始查询...");
-        return chartDataService.getDataByAccount(account);
-    }
+//    /**
+//     * 通过账号查询数据（查询自己的数据）
+//     * @param account
+//     * @return
+//     */
+//    @RequestMapping(value = "/getDataByAccount", method = RequestMethod.GET)
+//    @ApiOperation(value = "通过账号查询数据",notes = "通过账号查询数据")
+//    public Result getDataByAccount(@RequestParam(value = "account") String account) {
+//        log.info("开始查询...");
+//        return chartDataService.getDataByAccount(account);
+//    }
 
     /**
      * 添加数据

@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class JWTUtils {
 
-//    private static final String jwtToken = "123456Mszlu!@#$$";
     private static final String jwtToken = "hfut2019215068!@#$$";
     public static String createToken(String account){
         Map<String,Object> claims = new HashMap<>();

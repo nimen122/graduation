@@ -9,6 +9,9 @@
         <result column="source_data" jdbcType="VARCHAR" property="sourceData" />
         <result column="user_account" jdbcType="VARCHAR" property="userAccount" />
         <result column="collect_time" jdbcType="VARCHAR" property="collectTime" />
+        <result column="data_state" jdbcType="VARCHAR" property="dataState" />
+        <result column="state_msg" jdbcType="VARCHAR" property="stateMsg" />
+        <result column="state_image" jdbcType="VARCHAR" property="stateImage" />
 
     </resultMap>
 
@@ -21,17 +24,57 @@
         select * from tl_source where source_id=#{sourceId}
     </select>
 
+    <select id="commonSelectSource" resultMap="SourceMapper">
+        select * from tl_source
+        <where>
+            <if test="dataState != '全部' ">
+                and data_state = #{dataState}
+            </if>
+            <if test=" startTime != ''and endTime !='' ">
+                and date(collect_time) >= date(#{startTime})
+                and date(collect_time) &lt;= date(#{endTime})
+            </if>
+            <if test=" userAccount != '' ">
+                and user_account = #{userAccount}
+            </if>
+        </where>
+        order by field(data_state,'未进行验证','异常未处理','验证已通过','异常已解决'),collect_time desc
+    </select>
+
+    <select id="manageSelectSource" resultMap="SourceMapper">
+        select * from tl_source
+        <where>
+            <if test="dataState != '全部' ">
+                and data_state = #{dataState}
+            </if>
+            <if test=" startTime != ''and endTime !='' ">
+                and date(collect_time) >= date(#{startTime})
+                and date(collect_time) &lt;= date(#{endTime})
+            </if>
+            <if test=" userAccount != '' ">
+                and user_account = #{userAccount}
+            </if>
+        </where>
+        order by field(data_state,'异常未处理','未进行验证','异常已解决','验证已通过'),collect_time desc
+
+    </select>
+
     <!--    <select id="findUserById" resultMap="LoginMapper">-->
     <!--        select * form login where lo-->
     <!--    </select>-->
 
     <insert id="insertSource"  keyColumn="source_id" useGeneratedKeys="true" keyProperty="sourceId">
-        insert into tl_source(source_data,user_account,collect_time)
-        values(#{sourceData},#{userAccount},#{collectTime})
+        insert into tl_source(source_data,user_account,collect_time,data_state,state_msg)
+        values(#{sourceData},#{userAccount},#{collectTime},#{dataState},#{stateMsg})
     </insert>
 
-    <update id="updateSource" parameterType="com.example.graduationspringboot.entity.Source">
+    <update id="updateSourceData" parameterType="com.example.graduationspringboot.entity.Source">
         update tl_source set source_data = #{sourceData}
+        where source_id = #{sourceId}
+    </update>
+
+    <update id="updateSourceState" parameterType="com.example.graduationspringboot.entity.Source">
+        update tl_source set data_state = #{dataState},state_msg = #{stateMsg},state_image = #{stateImage}
         where source_id = #{sourceId}
     </update>
 

@@ -9,4 +9,10 @@ public class UserInfoVo {
 
     private String userRole;
 
+    private String userPhone;
+
+    private String userName;
+
+    private String token;
+
 }

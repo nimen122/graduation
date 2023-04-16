@@ -3,6 +3,7 @@ package com.example.graduationspringboot.controller;
 import com.example.graduationspringboot.entity.SysUser;
 import com.example.graduationspringboot.service.LoginService;
 import com.example.graduationspringboot.vo.Result;
+import com.example.graduationspringboot.vo.params.GetUserParam;
 import com.example.graduationspringboot.vo.params.LoginParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,11 +35,29 @@ public class LoginController {
     }
 
     /**
+     * 查询全部用户信息
+     * @return
+     */
+    @RequestMapping(value = "/allUser", method = RequestMethod.POST)
+    @ApiOperation(value = "查询全部用户信息",notes = "查询全部用户信息")
+    public Result allUser() {
+        log.info("开始查询全部用户信息...");
+        return loginService.allUser();
+    }
+
+    @RequestMapping(value = "/getUser", method = RequestMethod.POST)
+    @ApiOperation(value = "根据条件查询用户信息",notes = "根据条件查询用户信息")
+    public Result getUser(@RequestHeader("Authorization") String token,@RequestBody GetUserParam getUserParam) {
+        log.info("开始根据条件查询用户信息...");
+        return loginService.getUser(token,getUserParam);
+    }
+
+    /**
      * 获取用户信息
      * @param token
      * @return
      */
-    @RequestMapping(value = "/currentUser", method = RequestMethod.GET)
+    @RequestMapping(value = "/currentUser", method = RequestMethod.POST)
     @ApiOperation(value = "获取用户信息",notes = "获取用户信息")
     public Result currentUser(@RequestHeader("Authorization") String token) {
 

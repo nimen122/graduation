@@ -7,7 +7,7 @@ public interface ChartDataService {
 
     Result getDataById(int dataId);
 
-    Result getDataByAccount(String account);
+//    Result getDataByAccount(String account);
 
     Result addChartData(ChartData chartData);
 

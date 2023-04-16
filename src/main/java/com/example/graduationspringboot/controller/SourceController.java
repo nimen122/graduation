@@ -9,9 +9,11 @@ import com.example.graduationspringboot.service.SourceService;
 import com.example.graduationspringboot.vo.ChartDataVo;
 import com.example.graduationspringboot.vo.ErrorCode;
 import com.example.graduationspringboot.vo.Result;
+import com.example.graduationspringboot.vo.SourceStateVo;
 import com.example.graduationspringboot.vo.params.AddSourceParam;
 import com.example.graduationspringboot.vo.params.ChartDataParam;
 import com.example.graduationspringboot.vo.params.LoginParam;
+import com.example.graduationspringboot.vo.params.SourceCondition;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,18 @@ public class SourceController {
     public Result getAllSource() {
 
         return sourceService.getAllSource();
+
+    }
+
+    /**
+     * 分页条件查询数据
+     * @return
+     */
+    @RequestMapping(value = "/getSource", method = RequestMethod.POST)
+    @ApiOperation(value = "分页条件查询数据",notes = "分页条件查询数据")
+    public Result getSource(@RequestHeader("Authorization") String token, @RequestBody SourceCondition sourceCondition) {
+//        System.out.println(sourceCondition);
+        return sourceService.getSource(token,sourceCondition);
 
     }
 
@@ -87,5 +101,61 @@ public class SourceController {
         return sourceService.getChartData(sourceData);
 
     }
+
+    /**
+     * 根据数据源ID查询数据项
+     * @param sourceId
+     * @return
+     */
+    @RequestMapping(value = "/getDataById", method = RequestMethod.POST)
+    @ApiOperation(value = "根据数据源ID查询数据项",notes = "根据数据源ID查询数据项")
+    public Result getDataById(@RequestParam int sourceId) {
+
+        return sourceService.getDataById(sourceId);
+
+    }
+
+    /**
+     * 数据验证通过
+     * @param token
+     * @param sourceStateVo
+     * @return
+     */
+    @RequestMapping(value = "/checkPass", method = RequestMethod.POST)
+    @ApiOperation(value = "验证通过",notes = "验证通过")
+    public Result checkPass(@RequestHeader("Authorization") String token,@RequestBody SourceStateVo sourceStateVo) {
+
+        return sourceService.checkPass(token,sourceStateVo);
+
+    }
+
+    /**
+     * 上报异常
+     * @param token
+     * @param sourceStateVo
+     * @return
+     */
+    @RequestMapping(value = "/checkFail", method = RequestMethod.POST)
+    @ApiOperation(value = "上报异常",notes = "上报异常")
+    public Result checkFail(@RequestHeader("Authorization") String token,@RequestBody SourceStateVo sourceStateVo) {
+
+        return sourceService.checkFail(token,sourceStateVo);
+
+    }
+
+    /**
+     * 异常处理
+     * @param token
+     * @param sourceStateVo
+     * @return
+     */
+    @RequestMapping(value = "/errorHandle", method = RequestMethod.POST)
+    @ApiOperation(value = "异常处理",notes = "异常处理")
+    public Result errorHandle(@RequestHeader("Authorization") String token,@RequestBody SourceStateVo sourceStateVo) {
+
+        return sourceService.errorHandle(token,sourceStateVo);
+
+    }
+
 
 }

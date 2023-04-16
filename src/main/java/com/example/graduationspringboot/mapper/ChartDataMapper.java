@@ -10,7 +10,7 @@ public interface ChartDataMapper {
 
     ChartData selectDataById(int dataId);
 
-    List<ChartData> selectDataByAccount(String account);
+//    List<ChartData> selectDataByAccount(String account);
 
     boolean insertChartData(ChartData chartData);
 

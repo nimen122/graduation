@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：命名空间，是用于绑定Dao接口的，即面向接口编程，必须写为被绑定接口的全类名-->
+<mapper namespace="com.example.graduationspringboot.mapper.LogMapper">
+
+    <resultMap id="LogMapper" type="com.example.graduationspringboot.entity.Log">
+
+        <id column="log_id" jdbcType="INTEGER" property="logId" />
+        <result column="log_account" jdbcType="VARCHAR" property="logAccount" />
+        <result column="log_time" jdbcType="VARCHAR" property="logTime" />
+        <result column="log_type" jdbcType="VARCHAR" property="logType" />
+        <result column="log_content" jdbcType="INTEGER" property="logContent" />
+
+    </resultMap>
+
+    <!--    <select id="selectUserByAccount" resultMap="SysUserMapper">-->
+<!--        select * from tl_user where user_account=#{userAccount}-->
+<!--    </select>-->
+
+    <select id="selectAllLog" resultMap="LogMapper">
+        select * from tl_log
+    </select>
+
+
+    <select id="selectLog" resultMap="LogMapper">
+        select * from tl_log
+        <where>
+            <if test="logType != '全部' ">
+                and log_type = #{logType}
+            </if>
+            <if test=" startTime != ''and endTime !='' ">
+                and date(log_time) >= date(#{startTime})
+                and date(log_time) &lt;= date(#{endTime})
+            </if>
+            <if test=" input != '' ">
+                and log_account like "%"#{input,jdbcType=VARCHAR}"%"
+            </if>
+        </where>
+        order by log_time desc
+    </select>
+
+    <insert id="insertLog">
+        insert into tl_log(log_account,log_time,log_type,log_content)
+        values(#{logAccount},#{logTime},#{logType},#{logContent})
+    </insert>
+<!--    <select id="selectUser" resultMap="SysUserMapper">-->
+<!--        select user_account,user_name,user_phone,user_role from tl_user-->
+<!--        <where>-->
+<!--            <if test="userRole != '全部' ">-->
+<!--                and user_role = #{userRole}-->
+<!--            </if>-->
+<!--            <if test=" input != '' ">-->
+<!--                and user_account like "%"#{input,jdbcType=VARCHAR}"%"-->
+<!--                or user_name like "%"#{input,jdbcType=VARCHAR}"%"-->
+<!--            </if>-->
+
+<!--        </where>-->
+<!--        order by case when user_account = #{userAccount} then 0 else 1 end-->
+<!--    </select>-->
+
+    <!--    <select id="findUserById" resultMap="LoginMapper">-->
+    <!--        select * form login where lo-->
+    <!--    </select>-->
+
+<!--    <insert id="addUser" parameterType="com.example.graduationspringboot.entity.SysUser" keyColumn="userAccount" useGeneratedKeys="true">-->
+<!--        insert into tl_user(user_account,user_password,user_name,user_phone,user_role)-->
+<!--        values(#{userAccount},#{userPassword},#{userName},#{userPhone},#{userRole})-->
+<!--    </insert>-->
+
+<!--    <update id="updateUser" parameterType="com.example.graduationspringboot.entity.SysUser">-->
+<!--        update tl_user-->
+<!--        <set>-->
+<!--            <if test="userPassword != null and userPassword != '' ">-->
+<!--                user_password = #{userPassword},-->
+<!--            </if>-->
+<!--            <if test="userName !=null and userName != '' " >-->
+<!--                user_name = #{userName},-->
+<!--            </if>-->
+<!--            <if test="userPhone != null and userPhone != '' ">-->
+<!--                user_phone=#{userPhone},-->
+<!--            </if>-->
+<!--            <if test="userRole != null and userRole != '' ">-->
+<!--                user_role=#{userRole}-->
+<!--            </if>-->
+<!--        </set>-->
+<!--        <where>-->
+<!--            user_account = #{userAccount}-->
+<!--        </where>-->
+<!--    </update>-->
+
+    <!--    <delete id="deleteAccount" parameterType="com.example.graduationProject.entity.Login">-->
+    <!--        delete from login where login_account = #{loginAccount}-->
+    <!--    </delete>-->
+
+</mapper>
+
+
+

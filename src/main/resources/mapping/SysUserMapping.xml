@@ -17,7 +17,25 @@
         select * from tl_user where user_account=#{userAccount}
     </select>
 
-<!--    <select id="findUserById" resultMap="LoginMapper">-->
+    <select id="selectAllUser" resultMap="SysUserMapper">
+        select * from tl_user
+    </select>
+    <select id="selectUser" resultMap="SysUserMapper">
+        select user_account,user_name,user_phone,user_role from tl_user
+        <where>
+            <if test="userRole != '全部' ">
+                and user_role = #{userRole}
+            </if>
+            <if test=" input != '' ">
+                and user_account like "%"#{input,jdbcType=VARCHAR}"%"
+                or user_name like "%"#{input,jdbcType=VARCHAR}"%"
+            </if>
+
+        </where>
+        order by case when user_account = #{userAccount} then 0 else 1 end
+    </select>
+
+    <!--    <select id="findUserById" resultMap="LoginMapper">-->
 <!--        select * form login where lo-->
 <!--    </select>-->
 

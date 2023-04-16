@@ -9,10 +9,15 @@ import com.example.graduationspringboot.utils.JWTUtils;
 import com.example.graduationspringboot.vo.ErrorCode;
 import com.example.graduationspringboot.vo.Result;
 import com.example.graduationspringboot.vo.UserInfoVo;
+import com.example.graduationspringboot.vo.UserResultVo;
+import com.example.graduationspringboot.vo.params.GetUserParam;
 import com.example.graduationspringboot.vo.params.LoginParam;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -60,8 +65,6 @@ public class LoginServiceImpl implements LoginService {
             return Result.fail(ErrorCode.ACCOUNT_PWD_NOT_EXIST.getCode(),ErrorCode.ACCOUNT_PWD_NOT_EXIST.getMsg());
         }
 
-        System.out.println(sysUser.getUserRole());
-
         String token = JWTUtils.createToken(sysUser.getUserAccount());
 
         redisTemplate.opsForValue().set("TOKEN_"+token, JSON.toJSONString(sysUser),1, TimeUnit.DAYS);
@@ -90,6 +93,9 @@ public class LoginServiceImpl implements LoginService {
 
         userInfoVo.setUserAccount(sysUser.getUserAccount());
         userInfoVo.setUserRole(sysUser.getUserRole());
+        userInfoVo.setUserName(sysUser.getUserName());
+        userInfoVo.setUserPhone(sysUser.getUserPhone());
+        userInfoVo.setToken(token);
         return Result.success(userInfoVo);
     }
 
@@ -179,9 +185,6 @@ public class LoginServiceImpl implements LoginService {
         if (sysUser.getUserRole() != null && currentUser.getUserRole().equals("普通用户")){
             return Result.fail(ErrorCode.NO_PERMISSION.getCode(),ErrorCode.NO_PERMISSION.getMsg());
         }
-        if (sysUser.getUserName()!=null && currentUser.getUserRole().equals("普通用户")){
-            return Result.fail(ErrorCode.NO_PERMISSION.getCode(),ErrorCode.NO_PERMISSION.getMsg());
-        }
 
         SysUser sysUser1 = new SysUser();
         sysUser1.setUserAccount(sysUser.getUserAccount());
@@ -200,6 +203,28 @@ public class LoginServiceImpl implements LoginService {
         System.out.println(sysUser1);
         sysUserService.updateUser(sysUser1);
         return Result.success(null);
+    }
+
+    @Override
+    public Result allUser() {
+        List<SysUser> sysUserList = sysUserMapper.selectAllUser();
+        System.out.println(sysUserList);
+        for (int i = 0;i<sysUserList.size();i++){
+            sysUserList.get(i).setUserPassword("");
+        }
+        return Result.success(sysUserList);
+    }
+
+    @Override
+    public Result getUser(String token, GetUserParam getUserParam) {
+        SysUser currentUser = loginService.checkToken(token);
+
+        Page page =PageHelper.startPage(getUserParam.getPage(), getUserParam.getSize());
+        List<SysUser> sysUserList = sysUserMapper.selectUser(currentUser.getUserAccount(),getUserParam.getInput(),getUserParam.getUserRole());
+        UserResultVo userResultVo = new UserResultVo();
+        userResultVo.setTotal((int) page.getTotal());
+        userResultVo.setUserList(sysUserList);
+        return Result.success(userResultVo);
     }
 
 }
